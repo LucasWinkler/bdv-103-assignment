@@ -41,5 +41,6 @@
     "mongodb-memory-server": "^9.1.8",
     "typescript": "^5.4.3",
     "vitest": "^1.4.0"
-  }
+  },
+  "type": "module"
 }
