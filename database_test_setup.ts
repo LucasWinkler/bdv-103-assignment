@@ -1,22 +1,43 @@
 import { MongoMemoryServer } from 'mongodb-memory-server'
 import { afterAll, beforeAll } from 'vitest'
 
+let instance: MongoMemoryServer | null = null
+
 export async function setup (): Promise<void> {
-  const instance = await MongoMemoryServer.create({ binary: { version: '7.0.7' } })
-  while (instance.state === 'new') {
-    await instance.start()
+  try {
+    instance = await MongoMemoryServer.create({
+      binary: {
+        version: '7.0.7',
+        downloadDir: '/tmp/mongodb-binaries'
+      },
+      instance: {
+        dbName: 'test-db'
+      }
+    })
+
+    while (instance.state === 'new') {
+      await instance.start()
+    }
+
+    const uri = instance.getUri()
+    ;(global as any).__MONGOINSTANCE = instance
+    ;(global as any).MONGO_URI = uri.slice(0, uri.lastIndexOf('/'))
+  } catch (error) {
+    console.error('Failed to setup MongoDB Memory Server:', error)
+    throw error
   }
-  const uri = instance.getUri();
-  (global as any).__MONGOINSTANCE = instance;
-  (global as any).MONGO_URI = uri.slice(0, uri.lastIndexOf('/'))
 }
 
 export async function teardown (): Promise<void> {
-  const instance: MongoMemoryServer = (global as any).__MONGOINSTANCE
-  if (instance !== undefined) {
-    await instance.stop({ doCleanup: true })
+  try {
+    if (instance !== null) {
+      await instance.stop({ doCleanup: true })
+      instance = null
+    }
+  } catch (error) {
+    console.error('Failed to teardown MongoDB Memory Server:', error)
   }
 }
 
-beforeAll(setup)
-afterAll(teardown)
+beforeAll(setup, 30000)
+afterAll(teardown, 10000)
