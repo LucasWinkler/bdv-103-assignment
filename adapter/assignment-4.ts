@@ -72,9 +72,9 @@ async function findBookOnShelf (book: BookID): Promise<Array<{ shelf: ShelfId, c
 
 async function fulfilOrder (order: OrderId, booksFulfilled: Array<{ book: BookID, shelf: ShelfId, numberOfBooks: number }>): Promise<void> {
   const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
-  await client.fulfilOrder({ 
-    order, 
-    fulfilOrderRequestInner: booksFulfilled 
+  await client.fulfilOrder({
+    order,
+    fulfilOrderRequestInner: booksFulfilled
   })
 }
 
