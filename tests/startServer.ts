@@ -9,7 +9,7 @@ export interface TestContext {
   close: () => void
 }
 
-export default function (): void {
+export async function setupTestServer (): Promise<void> {
   beforeEach<TestContext>(async (context) => {
     const { server, state } = await createServer()
 
