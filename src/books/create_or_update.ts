@@ -1,61 +1,41 @@
-import { z } from 'zod'
-import { type ZodRouter } from 'koa-zod-router'
 import { type BookDatabaseAccessor } from '../database_access'
+import { type Book, type BookID } from '../../adapter/assignment-4'
 import { ObjectId } from 'mongodb'
 
-export default function createOrUpdateBook (router: ZodRouter, books: BookDatabaseAccessor): void {
-  router.register({
-    name: 'create or update a book',
-    method: 'post',
-    path: '/books',
-    validate: {
-      body: z.object({
-        id: z.string().optional(),
-        name: z.string(),
-        price: z.coerce.number(),
-        description: z.string(),
-        author: z.string(),
-        image: z.string()
-      })
-    },
-    handler: async (ctx, next) => {
-      const { books: bookCollection } = books
-      const body = ctx.request.body
+export async function createOrUpdateBook (books: BookDatabaseAccessor, book: Book): Promise<{ id: BookID }> {
+  const { books: bookCollection } = books
 
-      if (typeof body.id === 'string') {
-        const id = body.id
-        try {
-          const result = await bookCollection.replaceOne({ _id: { $eq: ObjectId.createFromHexString(id) } }, {
-            id,
-            name: body.name,
-            description: body.description,
-            price: body.price,
-            author: body.author,
-            image: body.image
-          })
-          if (result.modifiedCount === 1) {
-            ctx.body = { id }
-          } else {
-            ctx.statusCode = 404
-          }
-        } catch (e) {
-          ctx.statusCode = 500
-        }
+  if (typeof book.id === 'string') {
+    const id = book.id
+    try {
+      const result = await bookCollection.replaceOne({ _id: { $eq: ObjectId.createFromHexString(id) } }, {
+        id,
+        name: book.name,
+        description: book.description,
+        price: book.price,
+        author: book.author,
+        image: book.image
+      })
+      if (result.modifiedCount === 1) {
+        return { id }
       } else {
-        try {
-          const result = await bookCollection.insertOne({
-            name: body.name,
-            description: body.description,
-            price: body.price,
-            author: body.author,
-            image: body.image
-          })
-          ctx.body = { id: result.insertedId }
-        } catch (e) {
-          ctx.statusCode = 500
-        }
+        throw new Error('Book not found')
       }
-      await next()
+    } catch (e) {
+      throw new Error('Failed to update book')
     }
-  })
+  } else {
+    try {
+      const result = await bookCollection.insertOne({
+        name: book.name,
+        description: book.description,
+        price: book.price,
+        author: book.author,
+        image: book.image
+      })
+      return { id: result.insertedId.toHexString() }
+    } catch (e) {
+      throw new Error('Failed to create book')
+    }
+  }
 }

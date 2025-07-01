@@ -27,20 +27,20 @@ async function listBooks (filters?: Filter[]): Promise<Book[]> {
 }
 
 async function createOrUpdateBook (book: Book): Promise<BookID> {
-  return await previous_assignment.createOrUpdateBook(book)
+  const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
+  const result = await client.createOrUpdateBook({ book })
+  return result.id
 }
 
 async function removeBook (book: BookID): Promise<void> {
-  await previous_assignment.removeBook(book)
+  const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
+  await client.deleteBook({ id: book })
 }
 
 async function lookupBookById (book: BookID): Promise<Book> {
-  const result = await fetch(`http://localhost:3000/books/${book}`)
-  if (result.ok) {
-    return await result.json() as Book
-  } else {
-    throw new Error('Couldnt Find Book')
-  }
+  const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
+  const result = await client.getBook({ id: book })
+  return result
 }
 
 export type ShelfId = string
@@ -72,9 +72,9 @@ async function findBookOnShelf (book: BookID): Promise<Array<{ shelf: ShelfId, c
 
 async function fulfilOrder (order: OrderId, booksFulfilled: Array<{ book: BookID, shelf: ShelfId, numberOfBooks: number }>): Promise<void> {
   const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
-  await client.fulfilOrder({
-    order,
-    fulfilOrderRequestInner: booksFulfilled
+  await client.fulfilOrder({ 
+    order, 
+    fulfilOrderRequestInner: booksFulfilled 
   })
 }
 
