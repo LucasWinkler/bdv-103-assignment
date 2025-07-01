@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { setup } from '../database_test_setup'
 import { type TestContext } from './startServer'
 import { Configuration, DefaultApi } from '../client'
+import { setupTestServer } from './startServer'
 
-await setup()
+await setupTestServer()
 
 describe('Hello API', () => {
   it<TestContext>('should return greeting with provided name', async (context) => {

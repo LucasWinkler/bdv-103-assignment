@@ -33,6 +33,7 @@ jobs:
               with:
                 node-version: '20'           
             - run: npm install
+            - run: rm -rf ~/.cache/mongodb-binaries || true
             - run: npm run test:ci
 
     generate_openapi:
