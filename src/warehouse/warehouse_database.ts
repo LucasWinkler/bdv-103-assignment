@@ -35,7 +35,11 @@ export class DatabaseWarehouse implements WarehouseData {
   }
 
   async placeBookOnShelf (book: string, shelf: string, count: number): Promise<void> {
-    await this.accessor.books.insertOne({ book, shelf, count })
+    await this.accessor.books.replaceOne(
+      { book, shelf },
+      { book, shelf, count },
+      { upsert: true }
+    )
   }
 
   async getCopiesOnShelf (book: string, shelf: string): Promise<number> {

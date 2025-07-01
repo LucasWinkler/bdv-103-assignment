@@ -33,7 +33,7 @@ export async function createServer (port: number = 0, randomizeDbNames: boolean 
   app.use(cors())
   app.use(bodyParser())
 
-  const router = zodRouter({ zodRouter: { exposeRequestErrors: true } })
+  const router = zodRouter({ zodRouter: { exposeRequestErrors: true, exposeResponseErrors: true } })
 
   setupBookRoutes(router, state.books)
   setupWarehouseRoutes(router, state.warehouse)

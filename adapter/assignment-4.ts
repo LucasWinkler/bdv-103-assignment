@@ -1,4 +1,6 @@
 import previous_assignment from './assignment-3'
+import { DefaultApi, Configuration } from '../client'
+import { BASE_URL } from '../src/constants'
 
 export type BookID = string
 
@@ -64,20 +66,16 @@ async function orderBooks (order: BookID[]): Promise<{ orderId: OrderId }> {
 }
 
 async function findBookOnShelf (book: BookID): Promise<Array<{ shelf: ShelfId, count: number }>> {
-  const result = await fetch(`http://localhost:3000/warehouse/${book}`)
-  if (result.ok) {
-    const results = (await result.json()) as Record<ShelfId, number>
-    const shelfArray: Array<{ shelf: ShelfId, count: number }> = []
-    for (const shelf of Object.keys(results)) {
-      shelfArray.push({
-        shelf,
-        count: results[shelf]
-      })
-    }
-    return shelfArray
-  } else {
-    throw new Error('Couldnt Find Book')
+  const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
+  const results = await client.getBookInfo({ book })
+  const shelfArray: Array<{ shelf: ShelfId, count: number }> = []
+  for (const shelf of Object.keys(results)) {
+    shelfArray.push({
+      shelf,
+      count: results[shelf]
+    })
   }
+  return shelfArray
 }
 
 async function fulfilOrder (order: OrderId, booksFulfilled: Array<{ book: BookID, shelf: ShelfId, numberOfBooks: number }>): Promise<void> {
@@ -86,6 +84,7 @@ async function fulfilOrder (order: OrderId, booksFulfilled: Array<{ book: BookID
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(booksFulfilled)
   })
+  console.log('result', result)
   if (!result.ok) {
     throw new Error(`Couldnt Fulfil ${await result.text()}`)
   }

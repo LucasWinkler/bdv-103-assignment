@@ -56,13 +56,14 @@ export function fulfilOrderRouter (router: ZodRouter, warehouse: WarehouseData):
     handler: async (ctx, next) => {
       const { order } = ctx.request.params
       const booksFulfilled = ctx.request.body
-
+      console.log('booksFulfilled', booksFulfilled)
       try {
         await fulfilOrder(warehouse, order, booksFulfilled)
-
+        console.log('fulfilled')
         ctx.status = 200
         return await next()
       } catch (e) {
+        console.log('error', e)
         ctx.status = 500
         return await next()
       }
