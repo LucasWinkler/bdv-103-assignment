@@ -3,7 +3,7 @@ import { type BookID, type OrderId } from '../../adapter/assignment-4'
 import { InMemoryWarehouse, type WarehouseData } from './warehouse_data'
 import { z } from 'zod'
 
-async function placeOrder (data: WarehouseData, books: BookID[]): Promise<OrderId> {
+export async function placeOrder (data: WarehouseData, books: BookID[]): Promise<OrderId> {
   const order: Record<BookID, number> = {}
 
   for (const book of books) {

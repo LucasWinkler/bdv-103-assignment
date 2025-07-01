@@ -3,7 +3,6 @@ import cors from '@koa/cors'
 import zodRouter from 'koa-zod-router'
 import qs from 'koa-qs'
 import { setupBookRoutes } from './src/books'
-import { setupWarehouseRoutes } from './src/warehouse'
 import KoaRouter from '@koa/router'
 import { koaSwagger } from 'koa2-swagger-ui'
 import swagger from './build/swagger.json'
@@ -36,7 +35,6 @@ export async function createServer (port: number = 0, randomizeDbNames: boolean 
   const router = zodRouter({ zodRouter: { exposeRequestErrors: true, exposeResponseErrors: true } })
 
   setupBookRoutes(router, state.books)
-  setupWarehouseRoutes(router, state.warehouse)
 
   app.use(router.routes())
 

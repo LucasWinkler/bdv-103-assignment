@@ -47,22 +47,14 @@ export type ShelfId = string
 export type OrderId = string
 
 async function placeBooksOnShelf (bookId: BookID, numberOfBooks: number, shelf: ShelfId): Promise<void> {
-  const result = await fetch(`http://localhost:3000/warehouse/${bookId}/${shelf}/${numberOfBooks}`, { method: 'put' })
-  if (!result.ok) {
-    throw new Error('Couldnt Place on Shelf')
-  }
+  const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
+  await client.placeBooksOnShelf({ book: bookId, shelf, number: numberOfBooks })
 }
 
 async function orderBooks (order: BookID[]): Promise<{ orderId: OrderId }> {
-  const result = await fetch('http://localhost:3000/order', {
-    method: 'post',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ order })
-  })
-  if (!result.ok) {
-    throw new Error('Couldnt Place on Shelf')
-  }
-  return { orderId: await result.text() }
+  const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
+  const orderId = await client.placeOrder({ placeOrderRequest: { order } })
+  return { orderId }
 }
 
 async function findBookOnShelf (book: BookID): Promise<Array<{ shelf: ShelfId, count: number }>> {
@@ -79,24 +71,20 @@ async function findBookOnShelf (book: BookID): Promise<Array<{ shelf: ShelfId, c
 }
 
 async function fulfilOrder (order: OrderId, booksFulfilled: Array<{ book: BookID, shelf: ShelfId, numberOfBooks: number }>): Promise<void> {
-  const result = await fetch(`http://localhost:3000/fulfil/${order}`, {
-    method: 'put',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(booksFulfilled)
+  const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
+  await client.fulfilOrder({
+    order,
+    fulfilOrderRequestInner: booksFulfilled
   })
-  console.log('result', result)
-  if (!result.ok) {
-    throw new Error(`Couldnt Fulfil ${await result.text()}`)
-  }
 }
 
 async function listOrders (): Promise<Array<{ orderId: OrderId, books: Record<BookID, number> }>> {
-  const result = await fetch('http://localhost:3000/order')
-  if (result.ok) {
-    return await result.json() as Array<{ orderId: OrderId, books: Record<BookID, number> }>
-  } else {
-    throw new Error('Couldnt Find Book')
-  }
+  const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
+  const orders = await client.listOrders()
+  return orders.map(order => ({
+    orderId: order.orderId,
+    books: order.books
+  }))
 }
 
 const assignment = 'assignment-4'
