@@ -16,6 +16,8 @@
     "resolveJsonModule": true,
     "types": [
       "vitest/importMeta"
-    ]
+    ],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   }
 }
