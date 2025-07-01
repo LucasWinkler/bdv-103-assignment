@@ -67,7 +67,7 @@ async function orderBooks (order: BookID[]): Promise<{ orderId: OrderId }> {
 
 async function findBookOnShelf (book: BookID): Promise<Array<{ shelf: ShelfId, count: number }>> {
   const client = new DefaultApi(new Configuration({ basePath: BASE_URL }))
-  const results = await client.getBookInfo({ book })
+  const results = await client.getBookInfo({ book }) as Record<ShelfId, number>
   const shelfArray: Array<{ shelf: ShelfId, count: number }> = []
   for (const shelf of Object.keys(results)) {
     shelfArray.push({
