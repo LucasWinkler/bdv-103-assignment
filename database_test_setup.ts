@@ -13,7 +13,9 @@ export async function setup (): Promise<void> {
 
 export async function teardown (): Promise<void> {
   const instance: MongoMemoryServer = (global as any).__MONGOINSTANCE
-  await instance.stop({ doCleanup: true })
+  if (instance !== undefined) {
+    await instance.stop({ doCleanup: true })
+  }
 }
 
 beforeAll(setup)

@@ -17,11 +17,15 @@ export async function setupTestServer (): Promise<void> {
     const port = typeof address === 'object' && address !== null ? address.port : 0
 
     context.address = `http://localhost:${port}`
-    context.close = () => server.close()
+    context.close = () => {
+      server.close()
+    }
     context.state = state
   })
 
   afterEach<TestContext>((context) => {
-    context.close()
+    if (context.close !== undefined) {
+      context.close()
+    }
   })
 }
